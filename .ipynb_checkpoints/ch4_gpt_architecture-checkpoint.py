@@ -25,7 +25,7 @@ class GPTModel(nn.Module):
         x = self.drop_emb(x)
         x = self.trf_blocks(x)
         x = self.final_norm(x)
-        logits = self.out_heads(x)
+        logits = self.out_head(x)
         return logits
         
 
@@ -52,8 +52,8 @@ class TransformerBlock(nn.Module):
             dropout = cfg['drop_rate'],
             qkv_bias = cfg['qkv_bias'])
         self.ff = FeedForward(cfg)
-        self.norm1 = LayerNorm(cfg['emd_dim'])
-        self.norm2 = LayerNorm(cfg['emd_dim'])
+        self.norm1 = LayerNorm(cfg['emb_dim'])
+        self.norm2 = LayerNorm(cfg['emb_dim'])
         self.drop_shortcut = nn.Dropout(cfg['drop_rate'])
 
     def forward(self, x):
@@ -76,6 +76,7 @@ class FeedForward(nn.Module):
         super().__init__()
         self.layers = nn.Sequential(
             nn.Linear(cfg['emb_dim'], 4 * cfg['emb_dim']),
+            #the defined GELU function somehow is causing argument issues
             GELU(),
             nn.Linear(4 * cfg['emb_dim'], cfg['emb_dim']),
         )
@@ -84,7 +85,7 @@ class FeedForward(nn.Module):
         return self.layers(x)
 
 class GELU(nn.Module):
-    def __init__():
+    def __init__(self):
         super().__init__()
 
     def forward(self, x):
